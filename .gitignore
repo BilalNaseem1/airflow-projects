@@ -1,0 +1,47 @@
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+
+# ── Virtual environments ───────────────────────────────────────────────────────
+.venv/
+venv/
+env/
+.env/
+
+# ── Environment variables (contain secrets) ───────────────────────────────────
+.env
+.env.*
+!.env.example          # keep the example template, never the real one
+
+# ── Airflow ───────────────────────────────────────────────────────────────────
+logs/
+*/logs/
+config/airflow.cfg     # contains generated secrets
+*.pyc
+
+# ── uv ────────────────────────────────────────────────────────────────────────
+# keep uv.lock — it pins your dependencies
+# keep pyproject.toml
+
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+Thumbs.db
+desktop.ini
+
+# ── IDE ───────────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ── Docker volumes (never commit data) ────────────────────────────────────────
+postgres_data/
+airflow_postgres_data/
