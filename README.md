@@ -27,8 +27,8 @@ Each project introduces new tools and concepts — every one ships with a GitHub
 
 | # | Project | Status | Concepts | Article |
 |---|---|---|---|---|
-| 00 | [Weather Pipeline](#project-00--weather-pipeline) | ✅ Done | Sensors, XComs, Hooks, Connections | — |
-| 01 | [Stock Price Tracker](#project-01--stock-price-tracker) | 🔜 Next | logical_date, scheduling, backfilling, retries | — |
+| 00 | [Weather Pipeline](#project-00--weather-pipeline) | ✅ Done | Sensors, XComs, Hooks, Connections | [Medium](https://medium.com/@bilalnaseem19/i-built-my-first-data-pipeline-heres-what-nobody-tells-you) |
+| 01 | [Stock Price Tracker](#project-01--stock-price-tracker) | ✅ Done | logical_date, scheduling, backfilling, retries, upsert | — |
 | 02 | [Reddit → S3 + Terraform](#project-02--reddit-to-s3--terraform) | ⬜ Planned | AWS S3, IAM, S3Hook, data lake, Terraform | — |
 | 03 | [dbt + Airflow Analytics](#project-03--dbt--airflow-analytics) | ⬜ Planned | ELT, dbt models, staging/marts, dbt tests | — |
 | 04 | [Dynamic Multi-Source DAG](#project-04--dynamic-multi-source-dag) | ⬜ Planned | Dynamic DAGs, TaskFlow API, expand() | — |
@@ -124,7 +124,7 @@ Services started:
 
 ### 4. Start a project
 ```bash
-cd weather-pipeline
+cd stock-pipeline
 
 # generate required env vars
 echo "AIRFLOW_UID=$(id -u)" >> .env
@@ -136,7 +136,7 @@ docker compose up -d
 docker compose logs airflow-init -f
 ```
 
-Airflow UI → `http://localhost:8080` (airflow / airflow)
+Airflow UI → `http://localhost:8081` (airflow / airflow)
 
 ---
 
@@ -145,6 +145,7 @@ Airflow UI → `http://localhost:8080` (airflow / airflow)
 ### Project 00 · Weather Pipeline
 
 **Status:** ✅ Complete
+**Article:** [I Built My First Data Pipeline — Here's What Nobody Tells You](https://medium.com/@bilalnaseem19/i-built-my-first-data-pipeline-heres-what-nobody-tells-you)
 
 **What it does:**
 Fetches live weather data for Karachi from the Open-Meteo API every hour and loads it into Postgres.
@@ -169,10 +170,10 @@ create_table → is_api_available → extract_weather → process_weather → st
 
 ### Project 01 · Stock Price Tracker
 
-**Status:** 🔜 Next
+**Status:** ✅ Complete
 
 **What it does:**
-Fetches daily prices for 5 stocks (AAPL, GOOGL, MSFT, AMZN, META) using yfinance and loads them into Postgres on a daily schedule.
+Fetches daily prices for 5 stocks (AAPL, GOOGL, MSFT, AMZN, META) using yfinance and loads them into Postgres on a daily schedule. Runs catchup automatically since May 1st — all historical trading days loaded on first start.
 
 **Pipeline:**
 ```
@@ -180,11 +181,16 @@ create_table → check_market_open → fetch_prices → validate_prices → stor
 ```
 
 **Concepts:**
-- `logical_date` and how Airflow thinks about time
-- `schedule` and `catchup` — how backfilling works
-- `retries` and `retry_delay` on tasks
-- `on_failure_callback` for error handling
-- Idempotent upsert with `ON CONFLICT DO UPDATE`
+- `logical_date` — the data interval Airflow is processing, always one interval behind execution time
+- `schedule + catchup=True` — automatically triggers all missed runs since `start_date`
+- `retries + retry_delay` — tasks retry 3 times with a 5-minute wait on failure
+- `on_failure_callback` — custom function called on any task failure
+- `AirflowSkipException` — skips weekend runs cleanly without marking them as failed
+- `ON CONFLICT DO UPDATE` — idempotent upsert prevents duplicate rows on re-runs
+
+**Data source:** [yfinance](https://pypi.org/project/yfinance/) (free, no API key)
+
+**Table:** `stock_prices` in `stocks`
 
 ---
 
