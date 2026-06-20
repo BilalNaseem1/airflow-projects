@@ -45,3 +45,12 @@ desktop.ini
 # ── Docker volumes (never commit data) ────────────────────────────────────────
 postgres_data/
 airflow_postgres_data/
+
+
+# ── Terraform ─────────────────────────────────────────────────────────────────
+nasa_s3/terraform/terraform.tfvars
+nasa_s3/terraform/.terraform/
+nasa_s3/terraform/terraform.tfstate
+nasa_s3/terraform/terraform.tfstate.backup
+nasa_s3/terraform/.terraform.lock.hcl
+
